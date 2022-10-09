@@ -33,7 +33,6 @@ def check_user(login_session):
 
 def login(form):
     user = User.query.filter_by(email=form.email.data).first()
-    print(f"email:{user.email} password: {user.password}")
     if user.email == form.email.data and user.password == form.password.data:
         login_session["user_id"] = user.id
         login_session["email"] = user.email

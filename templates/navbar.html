@@ -9,8 +9,8 @@
 
 <nav>
     <div class="nav-wrapper orange">
-        <img src="{{ url_for(" static", filename="images/google_keeps.svg") }}"
-        style="height: 95%; width: 4%; padding-top: 0.23rem; padding-left: 0.5rem">
+        <img src="{{ url_for('static', filename='images/google_keeps.svg') }}"
+             style="height: 95%; width: 4%; padding-top: 0.23rem; padding-left: 0.5rem">
         <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li>
                 <form>
@@ -23,7 +23,7 @@
             </li>
             <li><a id="create_note" class="waves-effect waves-light btn modal-trigger" href="#create_note_modal">Create
                 note</a></li>
-            <li><a href="{{ url_for(" logout") }}">Log out</a></li>
+            <li><a href="{{ url_for('logout') }}">Log out</a></li>
         </ul>
     </div>
 </nav>
