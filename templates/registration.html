@@ -1,0 +1,51 @@
+{% include "base.html" %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="valign-wrapper" style="width:100%;height:100%;position: absolute;">
+    <div class="valign" style="width:100%;">
+        <div class="container">
+            <div class="center-align">
+                <img src="{{ url_for('static', filename='images/Google_Keep_icon.svg') }}"
+                     style="height: 15%; width: 15%;" alt="Logo">
+            </div>
+            <div>
+                <h5 class="center-align">Registration</h5>
+            </div>
+            <div class="row" style="margin-top: 5%">
+                <div class="col s4 offset-s4 card-panel center-align"
+                     style="padding-top: 2rem; padding-bottom: 2rem; padding-right: 4rem; padding-left: 4rem;">
+                    <form action="{{ url_for('registration') }}" method="post">
+                        {{ form.csrf_token }}
+                        {% for field in form if field.widget.input_type != "hidden" %}
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    {{ field(class_="validate") }}
+                                    {{ field.label }}
+                                </div>
+                                <div class="col-25">
+                                    {% for error in field.errors %}
+                                        <div class="error" style="color: red">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn waves-effect waves-light">Register!</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+    M.AutoInit();
+</script>
+</html>
