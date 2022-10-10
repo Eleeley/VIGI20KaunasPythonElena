@@ -1,5 +1,4 @@
 {% include "base.html" %}
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,8 +8,8 @@
 
 <nav>
     <div class="nav-wrapper orange">
-        <img src="{{ url_for('static', filename='images/google_keeps.svg') }}"
-             style="height: 95%; width: 4%; padding-top: 0.23rem; padding-left: 0.5rem">
+        <img src="{{ url_for('static', filename='images/Google_Keep_icon.svg') }}"
+             style="height: 95%; width: 4%; padding-top: 0.23rem; padding-left: 0.5rem" alt="">
         <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li>
                 <form>
@@ -21,28 +20,14 @@
                     </div>
                 </form>
             </li>
-            <li><a id="create_note" class="waves-effect waves-light btn modal-trigger" href="#create_note_modal">Create
-                note</a></li>
             <li><a href="{{ url_for('logout') }}">Log out</a></li>
         </ul>
     </div>
 </nav>
 
-<div id="create_note_modal" class="modal">
-    <div class="modal-content">
-        <h4>Modal Header</h4>
-        <p>A bunch of text</p>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
-    </div>
-</div>
-
 </body>
 
 <script>
     M.AutoInit();
-
-
 </script>
 </html>
