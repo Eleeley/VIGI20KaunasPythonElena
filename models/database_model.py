@@ -24,9 +24,9 @@ class Notes(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(200), nullable=False)
-    text = db.Column(db.Text)
+    content = db.Column(db.Text)
     image = db.Column(db.BLOB)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = relationship(User)
-    notes_categories = db.Column(db.Integer, db.ForeignKey('notes_categories.id'))
+    notes_categories = db.Column(db.Integer, db.ForeignKey('notes_categories.id'), nullable=True)
     note_category = db.relationship(NotesCategories)

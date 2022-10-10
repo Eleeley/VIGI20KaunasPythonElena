@@ -6,6 +6,6 @@ from wtforms.validators import DataRequired
 class NoteForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
     id = IntegerField()
-    content = StringField("Note", )
-    image = FileField('Image upload')
-    category_id = IntegerField()
+    content = StringField("Note", validators=[])
+    image = FileField('Image upload', validators=[])
+    category_id = IntegerField(validators=[])
