@@ -11,6 +11,8 @@
         <img src="{{ url_for('static', filename='images/Google_Keep_icon.svg') }}"
              style="height: 95%; width: 4%; padding-top: 0.23rem; padding-left: 0.5rem" alt="">
         <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li class="left-align"><a href="{{ url_for('notes') }}">Notes</a></li>
+            <li class="left-align"><a href="{{ url_for('category_list') }}">Categories</a></li>
             <li>
                 <form>
                     <div class="input-field center">
