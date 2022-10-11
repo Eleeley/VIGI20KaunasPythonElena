@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from forms.login_form import LoginForm
 from forms.note_form import NoteForm
 from forms.registration_form import RegistrationForm
+from forms.category_form import CategoryForm
 
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = 'SecretKeyForProject'
@@ -14,7 +15,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-from models import User, Notes, NotesCategories
+from models import User, Notes, Categories
 
 with app.app_context():
     db.create_all()
@@ -25,7 +26,7 @@ with app.app_context():
 def user_note_and_categories():
     try:
         user_notes = Notes.query.filter_by(user_id=login_session["user_id"])
-        user_categories = NotesCategories.query.filter_by(user_id=login_session["user_id"])
+        user_categories = Categories.query.filter_by(user_id=login_session["user_id"])
     except KeyError:
         user_notes = []
         user_categories = []
@@ -76,7 +77,9 @@ def index():
         user = check_user(login_session)
         if user:
             create_note_form = NoteForm()
-            return redirect(url_for("notes", create_note_form=create_note_form))
+            create_category_form = CategoryForm()
+            return redirect(
+                url_for("notes", create_note_form=create_note_form, create_category_form=create_category_form))
         else:
             form = LoginForm()
             return render_template("index.html", form=form)
@@ -85,7 +88,9 @@ def index():
         if form.validate_on_submit():
             login(form)
             create_note_form = NoteForm()
-            return redirect(url_for("notes", create_note_form=create_note_form))
+            create_category_form = CategoryForm()
+            return redirect(
+                url_for("notes", create_note_form=create_note_form, create_category_form=create_category_form))
 
 
 @app.route("/notes", methods=["GET"])
@@ -94,7 +99,7 @@ def notes():
         user = check_user(login_session)
         if user is not None:
             user_notes = Notes.query.filter_by(user_id=user.id)
-            user_categories = NotesCategories.query.filter_by(user_id=user.id)
+            user_categories = Categories.query.filter_by(user_id=user.id)
             create_note_form = NoteForm()
             return render_template("notes.html", user_notes=user_notes, user_categories=user_categories,
                                    create_note_form=create_note_form)
@@ -121,44 +126,100 @@ def create_note():
             form = NoteForm(request.form)
             if form.validate_on_submit():
                 new_note = Notes(title=form.title.data, content=form.content.data,
-                                 image=bytes(form.image.data, "utf-8"), user_id=user.id,
-                                 notes_categories=form.category_id.data if form.category_id.data else None)
+                                 image=bytes(form.image.data, "utf-8"), user_id=user.id)
                 db.session.add(new_note)
                 db.session.commit()
             create_note_form = NoteForm()
-            return redirect(url_for("notes", create_note_form=create_note_form))
+            create_category_form = CategoryForm()
+            return redirect(
+                url_for("notes", create_note_form=create_note_form, create_category_form=create_category_form))
 
 
-@app.route("/<int:note_id>/editnote/", methods=['POST'])
+@app.route("/addcategory", methods=['POST'])
+def create_category():
+    user = check_user(login_session)
+    if user:
+        if request.method == "POST":
+            form = CategoryForm(request.form)
+            if form.validate_on_submit():
+                new_category = Categories(category_title=form.title.data, user_id=user.id)
+                db.session.add(new_category)
+                db.session.commit()
+            create_note_form = NoteForm()
+            create_category_form = CategoryForm()
+            return redirect(
+                url_for("category_list", create_note_form=create_note_form, create_category_form=create_category_form))
+
+
+@app.route("/categories", methods=['GET'])
+def category_list():
+    user = check_user(login_session)
+    if user:
+        if request.method == "GET":
+            category_list = Categories.query.filter_by(user_id=user.id).all()
+            create_note_form = NoteForm()
+            create_category_form = CategoryForm()
+            return render_template("categories.html", category_list=category_list, create_note_form=create_note_form,
+                                   create_category_form=create_category_form)
+
+
+@app.route("/editcategory/<int:category_id>/", methods=['POST', 'GET'])
+def edit_category(category_id):
+    if request.method == "POST":
+        user = check_user(login_session)
+        if user:
+            form = CategoryForm(request.form)
+            if form.validate_on_submit():
+                category_to_edit = Categories.query.get_or_404(category_id)
+                category_to_edit.category_title = form.title.data
+                db.session.add(category_to_edit)
+                db.session.commit()
+    else:
+        category = Categories.query.get_or_404(category_id)
+        form = CategoryForm()
+        form.id.data = category.id
+        form.title.data = category.category_title
+        user_categories = Categories.query.filter_by(user_id=login_session["user_id"]).all()
+        return render_template("edit_category.html", form=form, category_id=category_id,
+                               user_categories=user_categories)
+    create_note_form = NoteForm()
+    create_category_form = CategoryForm()
+    user_categories = Categories.query.filter_by(user_id=login_session["user_id"]).all()
+    return redirect(
+        url_for("category_list", create_note_form=create_note_form, create_category_form=create_category_form,
+                user_categories=user_categories))
+
+
+@app.route("/editnote/<int:note_id>/", methods=['POST', 'GET'])
 def edit_notes(note_id):
-    user = check_user(login_session)
-    if user:
-        form = NoteForm(request.form)
-        if form.validate_on_submit():
-            note_to_edit = Notes.query.get_or_404(note_id)
-            note_to_edit.title = form.title.data
-            note_to_edit.content = form.content.data
-            note_to_edit.category_id = form.category_id.data if form.category_id.data else None
-            note_to_edit.image = form.image.data
-            db.session.add(note_to_edit)
-            db.session.commit()
+    if request.method == "POST":
+        user = check_user(login_session)
+        if user:
+            form = NoteForm(request.form)
+            if form.validate_on_submit():
+                note_to_edit = Notes.query.get_or_404(note_id)
+                note_to_edit.title = form.title.data
+                note_to_edit.content = form.content.data
+                note_to_edit.image = bytes(form.image.data, "utf-8")
+                categories = Categories.query.get_or_404(form.category_id.data)
+                note_to_edit.categories.append(categories)
+                db.session.add(note_to_edit)
+                db.session.commit()
+    else:
+        notes = Notes.query.get_or_404(note_id)
+        form = NoteForm()
+        form.id.data = notes.id
+        form.title.data = notes.title
+        form.content.data = notes.content
+        form.image.data = notes.image
+        form.category_id.data = notes.categories
+        user_categories = Categories.query.filter_by(user_id=login_session["user_id"]).all()
+        return render_template("edit_note.html", form=form, note_id=note_id, user_categories=user_categories)
     create_note_form = NoteForm()
-    return redirect(url_for("notes", create_note_form=create_note_form))
-
-
-@app.route("/<int:note_id>/addcategory/", methods=['POST'])
-def add_category(note_id):
-    user = check_user(login_session)
-    if user:
-        form = NoteForm(request.form)
-        if form.validate_on_submit():
-            note_to_edit = Notes.query.get_or_404(note_id)
-            note_to_edit.category_id = form.category_id.data if form.category_id.data else None
-            db.session.add(note_to_edit)
-            db.session.commit()
-    create_note_form = NoteForm()
-    return redirect(url_for("notes", create_note_form=create_note_form))
+    create_category_form = CategoryForm()
+    return redirect(url_for("notes", create_note_form=create_note_form, create_category_form=create_category_form))
 
 
 if __name__ == '__main__':
     app.run()
+

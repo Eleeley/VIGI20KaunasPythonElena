@@ -9,14 +9,12 @@ class User(db.Model):
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String(32), nullable=False)
 
-
-class NotesCategories(db.Model):
-    __tablename__ = 'notes_categories'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    category_title = db.Column(db.String(32), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user = db.relationship(User)
+association_table = db.Table(
+    "notes_categories",
+    db.metadata,
+    db.Column("notes_id", db.ForeignKey("notes.id"), primary_key=True),
+    db.Column("category_id", db.ForeignKey("categories.id"), primary_key=True),
+)
 
 
 class Notes(db.Model):
@@ -28,5 +26,18 @@ class Notes(db.Model):
     image = db.Column(db.BLOB)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = relationship(User)
-    notes_categories = db.Column(db.Integer, db.ForeignKey('notes_categories.id'), nullable=True)
-    note_category = db.relationship(NotesCategories)
+    categories = relationship(
+        "Categories", secondary=association_table, back_populates="notes"
+    )
+
+
+class Categories(db.Model):
+    __tablename__ = 'categories'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    category_title = db.Column(db.String(32), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = relationship(User)
+    notes = relationship(
+        "Notes", secondary=association_table, back_populates="categories"
+    )
