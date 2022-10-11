@@ -201,8 +201,11 @@ def edit_notes(note_id):
                 note_to_edit.title = form.title.data
                 note_to_edit.content = form.content.data
                 note_to_edit.image = bytes(form.image.data, "utf-8")
-                categories = Categories.query.get_or_404(form.category_id.data)
-                note_to_edit.categories.append(categories)
+                try:
+                    categories = Categories.query.get_or_404(form.category_id.data)
+                    note_to_edit.categories.append(categories)
+                except Exception:
+                    pass
                 db.session.add(note_to_edit)
                 db.session.commit()
     else:

@@ -58,10 +58,10 @@
                 </div>
                 <div class="row">
                     <div class="input-field col s12">
-                        <select multiple>
-                            <option value="" disabled selected>Choose your option</option>
-                            {% for category in note_categories %}
-                                <option value="{{ category.id }}">{{ category.category_title }}</option>
+                        <select name="category_id" id="category_id">
+                            <option value="">Choose your option</option>
+                            {% for category in user_categories %}
+                                <option>{{ category.category_title }}</option>
                             {% endfor %}
                         </select>
                         <label>Choose categories</label>
